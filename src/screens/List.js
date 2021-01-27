@@ -1,68 +1,101 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet } from 'react-native';
-import {Container, Body, Icon, Thumbnail, Right, Text, Content, Left, List, ListItem} from 'native-base'
+import { StyleSheet, ScrollView, TouchableHighlight, LogBox, View } from 'react-native';
+import {Container, Body, Icon, Thumbnail, Item, Input, Right, Text, Content, Left, List, ListItem} from 'native-base'
+import axios from 'axios';
+import {useSelector, useDispatch} from 'react-redux'
+import { getTukang, setTukangCategory } from '../stores/actions/tukangAction'
 
-export default function ListTukang({route}){
-
-  const {asal} = route.params
+export default function ListTukang({navigation, route}){
+  const dispatch = useDispatch()
+  const { type, category } = route.params
   const [typeTukang, setTypeTukang] = useState("")
-  const [categoryTukang, setCategoryTukang] = useState("")
-  // function toEdit(){
-  //     navigation.push('Edit')
-  // }
+  const [locationFilter, setLocFil] = useState('')
+  const access_token = useSelector(state => state.tukangReducer.access_token)
+  const tukangPerCategory = useSelector(state => state.tukangReducer.tukangPerCategory.filter(e => {
+      return e.location.toLowerCase().includes(locationFilter) ;
+    }))
 
+  // const [categoryTukang, setCategoryTukang] = useState("")
+  LogBox.ignoreAllLogs(true)
   useEffect(() => {
-    if (asal === 19){
-      setTypeTukang("TUKANG BANGUNAN")
-      // setCategoryTukang()
-    } else if (asal === 20) {
-      setTypeTukang("TUKANG LISTRIK")
-    } else if (asal === 21) {
-      setTypeTukang("TUKANG KEBUN")
-    }
+    axios({
+      method : "GET",
+      url: "http://54.255.251.4/user/tukang",
+      headers: {access_token}
+    })
+    .then(({data}) => {
+      dispatch(getTukang(data))
+
+      dispatch(setTukangCategory( data.filter(e => {
+        if(e.category === category){
+          return e
+        }
+      })))
+    })
+    .catch(err => {
+      console.log('masuk error',err)
+    })
   }, [])
   
-  console.log(route.params, '<<<params')
+  // console.log(route.params, '<<<params')
+
+  function toDetail(data) {
+    navigation.navigate('Detail', {
   
+      tukangId: data
+    })
+  }
+
+  function inputFilter(e) {
+
+    setLocFil(e.toLowerCase())
+  }
   return (
-    <Container>
-      <Content>
-        <List>
-          <ListItem itemDivider thumbnail>
-            <Left>
-              <Thumbnail square source={typeTukang} style={{width: 100, height: 100, marginTop: 20}}/>
-            </Left>
+    <ScrollView>
+      <Container >
+        <Content >
+            
+          <View style={{ backgroundColor: '#fc8621', paddingTop: 30 }}>
             <Body>
-              <Text style={{fontSize:30}}>{typeTukang}</Text>
+              <Text style={{fontSize:30, fontWeight: 'bold', alignSelf: 'center', color: 'black', paddingBottom: 20, textShadowOffset:{width: 5, height: 3}, textShadowRadius: 10}}>Tukang {category}</Text>
             </Body>
-          </ListItem>
-          <ListItem avatar style={{marginTop:30}}>
-            <Left>
-              <Thumbnail source={{ uri: 'https://www.wowkeren.com/display/images/photo/2019/10/09/00277245.jpg'}} />
-            </Left>
-            <Body>
-              <Text>Abang Bangunan</Text>
-              <Text note>KOTA SEMARANG</Text>
-            </Body>
-            <Right>
-              <Icon name="star" style={{color:"#f6b93b"}}>5.4</Icon>
-            </Right>
-          </ListItem>
-          <ListItem avatar style={{marginTop:30}}>
-            <Left>
-              <Thumbnail source={{ uri: 'https://www.wowkeren.com/display/images/photo/2019/10/09/00277245.jpg'}} />
-            </Left>
-            <Body>
-              <Text>Abang LISTRIK</Text>
-              <Text note>KOTA BEKASI</Text>
-            </Body>
-            <Right>
-              <Icon name="star" style={{color:"#f6b93b"}}>8.4</Icon>
-            </Right>
-          </ListItem>
-        </List>
-      </Content>
-    </Container>
+            <Item style={{borderTopEndRadius: 25, borderTopStartRadius:25, backgroundColor: 'white', marginLeft: 0}} >
+              <Icon style={{marginLeft: 10}} name="ios-search" />
+              <Input onChangeText={inputFilter} placeholder="Cari Kota"  />
+            </Item>
+
+          </View>
+        {
+          tukangPerCategory.length > 0 && tukangPerCategory.map((e, i) => {
+            return (
+                  <List  key={i}> 
+                    <ListItem  avatar style={{marginTop:30}}>
+                      <Left>
+                        <Thumbnail source={{ uri: e.avatar_img.link}} />
+                      </Left>
+                    <TouchableHighlight underlayColor='white' onPress={() => {toDetail(e._id)}}>
+                      <Body>
+                        <Text>{e.name}</Text>
+                        <Text note>{e.location}</Text>
+                      </Body>
+                    </TouchableHighlight>
+                    </ListItem>
+                  </List>
+            )
+          })
+        }
+        {
+          tukangPerCategory.length === 0 && 
+              <List>
+                    
+                    
+                    
+                    <Text>Belum ada data Tukang</Text>
+                  </List>
+        }
+        </Content>
+      </Container>
+    </ScrollView>
   )
 }
 

@@ -1,47 +1,44 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {  View, Dimensions, ScrollView, Image, Text, TouchableHighlight } from 'react-native';
 
 const {width} = Dimensions.get("window")
 const height = width * 0.6
-const bangunan = require('../image/Tukang_Bangunan.png')
-const listrik = require('../image/Tukang_Listrik.png')
-const kebun = require('../image/Tukang_Kebun.png')
 
 export default function Home ({navigation}) {
-
+ 
   const [typeTukang, setTypeTukang] = useState([
-    // bangunan,
-    // listrik,
-    // kebun
-    require('../image/Tukang_Bangunan.png'),
-    require('../image/Tukang_Listrik.png'),
-    require('../image/Tukang_Kebun.png')
+    {url: 'https://i.imgur.com/4f4kvB2.png', categoryTukang: "kebun"},
+    {url: 'https://i.imgur.com/Q6PYGrI.png', categoryTukang: "listrik"},
+    {url: 'https://i.imgur.com/JckbilZ.png', categoryTukang: "bangunan"}
   ])
-
-  console.log(typeTukang, "<<<<typetukang")
-		
-  function toList(index){
-    
-    console.log(typeTukang[index], '<<<<jenis')
+  
+  function toList(jenis){
     navigation.navigate('ListTukang', {
-      asal: typeTukang[index]
+      type: jenis.url,
+      category: jenis.categoryTukang
     })
-	}
+  }
+  
 
   return (
-    <View>
-      <Text style={{marginTop: 50, color: 'black', textAlign: 'center', fontSize: 30}}>Cari tukang apa hari ini ?</Text>
+    <View style={{backgroundColor: '#FFFF', paddingBottom: 125}}>
+      <Text style={{marginTop: 50, color: '#fc8621', textAlign: 'center', fontSize: 30}}>Cari tukang apa hari ini ?</Text>
       <ScrollView pagingEnabled horizontal showsHorizontalScrollIndicator={false} style={{marginTop: 50}}>
         {
-          typeTukang.map((jenis, index) => (		
-            <TouchableHighlight onPress={() => toList(index)}>
-              <Image
-                key={index}
-                source={jenis}
-                style={{width, height, resizeMode: 'contain'}}
-                
-            />
-            </TouchableHighlight>						
+          typeTukang.map((jenis, index) =>  (	
+            <View key={index}>
+              <TouchableHighlight onPress={() => toList(jenis)}
+                activeOpacity={10}
+                underlayColor='#FFFF'
+              >
+                <Image
+                  source={{uri: jenis.url}}
+                  style={{width, height, resizeMode: 'contain', borderRadius: 35, shadowColor: '#000',
+                  shadowOffset: {width:0, height: 4}, shadowOpacity: 0.30, shadowRadius:4.65
+                  }}
+                />
+              </TouchableHighlight>
+            </View>					
           ))
         }
       </ScrollView>
