@@ -21,7 +21,6 @@ export default function OrderList({navigation}) {
       headers: {access_token}
     })
     .then(({data}) => {
-      console.log('render');
       setOrder(data)
     })
     .catch(err => console.log('error orderlist', err))
@@ -61,11 +60,11 @@ export default function OrderList({navigation}) {
               !loading ? listOrder.map((order, i) => {
                 return (
                         <Card style={{borderBottomLeftRadius: 20, borderBottomRightRadius: 20}} key={i}>
-                          <CardItem style={{justifyContent: 'space-between', backgroundColor: '#e7e7de'}} header>
+                          <CardItem style={{justifyContent: 'space-between', backgroundColor: '#DDD'}} header>
                             <Text>{order.userName}</Text>
                             <Text>jadwal: {order.schedule}</Text>
                           </CardItem>
-                          <CardItem style={{backgroundColor: '#e7e7de'}}>
+                          <CardItem style={{backgroundColor: '#DDD'}}>
                             <Body>
                               <Text style={{fontWeight: 'bold'}}>
                                 Total:
@@ -75,11 +74,11 @@ export default function OrderList({navigation}) {
                                   </View>
                             </Body>
                           </CardItem>
-                          <CardItem style={{backgroundColor: '#e7e7de', borderBottomLeftRadius: 20, borderBottomRightRadius: 20}} footer>
+                          <CardItem style={{backgroundColor: '#DDD', borderBottomLeftRadius: 20, borderBottomRightRadius: 20}} footer>
                           
                         
                           {
-                            order.status === "accepted" && <Button onPress={() => toDone(order._id)} small rounded success style={{marginBottom:20}}>
+                            order.status === "accepted" && <Button onPress={() => toDone(order._id)} small rounded success style={{marginBottom:20, backgroundColor: '#fc8621'}}>
                                                           <Text >Selesai</Text>
                                                         </Button> 
                           }  
