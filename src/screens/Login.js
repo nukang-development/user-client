@@ -15,6 +15,7 @@ export default function Login() {
   const [ email, setEmail ] = useState('')
   const [ password, setPassword] = useState('')
   const [isReady, setReady] = useState(false)
+  const [wrong, setWrong] = useState(false)
   const navigation = useNavigation()
 //192.168.1.7:
   useEffect(() => {
@@ -42,7 +43,6 @@ export default function Login() {
       data: payload
     })
     .then(({data}) => {
-      console.log('masuk login')
       setId(data.id)
       dispatch(setIdUser({id: data.id, email: email}))
       dispatch(setToken(data.access_token))
@@ -54,6 +54,10 @@ export default function Login() {
       })
     })
     .catch(err => {
+      setWrong(true)
+      setTimeout(() => {
+        setWrong(false)
+      }, 2000);
       console.log(err)
     })
   }
@@ -75,6 +79,7 @@ export default function Login() {
           />
         <View style={styles.container}>
           <Form style={{paddingLeft:20, paddingRight:20}}>
+            {wrong && <Text style={{fontSize: 20, color: '#f9e0ae', alignSelf: 'center', paddingTop: 5}}>Email/Password Salah</Text>}
             <Item style={{marginTop:20}} stackedLabel>
               <Label style={{color: 'white', fontWeight:'bold'}}>Email</Label>
               <Input style={{color: 'white', fontWeight: '100'}} placeholder="Insert your email"
